@@ -27,7 +27,16 @@ type SearchResults struct {
 	ProductPagesResponse search.SearchResults[BookProductInfo]
 }
 
-func SearchBooks(query string) (search.SearchResults[BookProductInfo], error) {
+func Search(query string) error {
+	books, err := searchBooks(query)
+	if err != nil {
+		return err
+	}
+	fmt.Println(books)
+	return nil
+}
+
+func searchBooks(query string) (search.SearchResults[BookProductInfo], error) {
 	var results SearchResults
 	var resultsAdditionInfo []BookAdditionInfo
 	searchData, err := httputils.FetchWithTimeout(func() (*http.Response, error) {

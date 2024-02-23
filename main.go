@@ -5,7 +5,7 @@ import (
 	"bookfinder/nostarch"
 	"os"
 
-	//"bookfinder/oreilly"
+	"bookfinder/oreilly"
 	_ "bookfinder/store"
 	"fmt"
 )
@@ -18,9 +18,10 @@ func main() {
 	if len(query) == 0 {
 		return
 	}
-	//err := oreilly.SearchAndSave(query)
-	res, err := nostarch.Search(query)
-	fmt.Println(res, err)
-	manningBooks, err := manning.SearchBooks(query)
-	fmt.Println(manningBooks, err)
+	err := oreilly.SearchAndSave(query)
+	fmt.Println(err)
+	err = nostarch.Search(query)
+	fmt.Println(err)
+	err = manning.Search(query)
+	fmt.Println(err)
 }

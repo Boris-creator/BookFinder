@@ -8,8 +8,47 @@ import (
 	"strings"
 )
 
-func BulkInsert[T any, M any](tableName string, unsavedRows []T, prepare func(value T) M) error {
-	db, err := sql.Open("sqlite3", "db/bookstore.db")
+type insertOptions[T any, M any] struct {
+	driverName     string
+	dataSourceName string
+	prepare        func(value T) M
+	replace        bool
+}
+
+type setInsertOption[T any, M any] func(*insertOptions[T, M]) error
+
+type Config[T any, M any] struct{}
+
+func (Config[T, M]) Replace(value bool) setInsertOption[T, M] {
+	return func(options *insertOptions[T, M]) error {
+		options.replace = value
+		return nil
+	}
+}
+func (Config[T, M]) Prepare(value func(value T) M) setInsertOption[T, M] {
+	return func(options *insertOptions[T, M]) error {
+		options.prepare = value
+		return nil
+	}
+}
+
+func BulkInsert[T any, M any](tableName string, unsavedRows []T, options ...setInsertOption[T, M]) error {
+	insertOptions := insertOptions[T, M]{
+		driverName:     "sqlite3",
+		dataSourceName: "db/bookstore.db",
+		replace:        true,
+	}
+	for _, setOption := range options {
+		setOption(&insertOptions)
+	}
+	var prepare func(T) any = func(t T) any { return t }
+	if insertOptions.prepare != nil {
+		prepare = func(t T) any {
+			return insertOptions.prepare(t)
+		}
+	}
+
+	db, err := sql.Open(insertOptions.driverName, insertOptions.dataSourceName)
 	if err != nil {
 		return err
 	}
@@ -33,8 +72,12 @@ func BulkInsert[T any, M any](tableName string, unsavedRows []T, prepare func(va
 		})
 		valuesToBind = append(valuesToBind, values...)
 	}
-
-	stmt := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s",
+	statement := "INSERT"
+	if insertOptions.replace {
+		statement = "REPLACE"
+	}
+	stmt := fmt.Sprintf("%s INTO %s (%s) VALUES %s",
+		statement,
 		tableName,
 		strings.Join(columnNames, ","),
 		strings.Join(queryBindings, ","))

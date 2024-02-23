@@ -44,14 +44,16 @@ func SearchAndSave(query string) error {
 	if err != nil {
 		return err
 	}
-	err = dbutils.BulkInsert[book, bookModel]("books", results.Results, func(book book) bookModel {
+
+	var saveConfig dbutils.Config[book, bookModel]
+	err = dbutils.BulkInsert[book, bookModel]("books", results.Results, saveConfig.Prepare(func(b book) bookModel {
 		return bookModel{
-			book.Title,
-			book.Description,
-			book.Isbn,
+			b.Title,
+			b.Description,
+			b.Isbn,
 			int(search.OReilly),
 		}
-	})
+	}))
 	if err != nil {
 		return err
 	}
@@ -83,7 +85,7 @@ func SearchAndSave(query string) error {
 
 	wg.Wait()
 
-	err = dbutils.BulkInsert[imageModel]("images", coverImages, func(img imageModel) imageModel { return img }) //TODO save unique values
+	err = dbutils.BulkInsert[imageModel, imageModel]("images", coverImages)
 
 	return err
 }

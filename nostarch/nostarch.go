@@ -1,6 +1,7 @@
 package nostarch
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sync"
@@ -15,7 +16,16 @@ type bookInfo struct {
 	Isbn        string
 }
 
-func Search(query string) ([]bookInfo, error) {
+func Search(query string) error {
+	books, err := searchBooks(query)
+	if err != nil {
+		return err
+	}
+	fmt.Println(books)
+	return nil
+}
+
+func searchBooks(query string) ([]bookInfo, error) {
 	baseUrl := "https://nostarch.com/"
 	searchUrl, _ := url.JoinPath(baseUrl, "search", url.PathEscape(query))
 	res, err := http.Get(searchUrl)

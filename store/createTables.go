@@ -21,13 +21,15 @@ func createTables() {
 		"source"	INTEGER NOT NULL,
 		"id"	INTEGER NOT NULL UNIQUE,
 		PRIMARY KEY("id" AUTOINCREMENT)
+		CONSTRAINT "title_from_source" UNIQUE("title","source")
 	);
 	CREATE TABLE IF NOT EXISTS "images" (
 		"name"	TEXT NOT NULL UNIQUE,
 		"source"	INTEGER,
 		"image"	BLOB NOT NULL,
 		"bookId"	INTEGER,
-		"hash"	TEXT NOT NULL UNIQUE,
+		"hash"	TEXT NOT NULL,
+		UNIQUE("source","hash"),
 		FOREIGN KEY("bookId") REFERENCES "books"("id")
 	);
 	`)
