@@ -18,9 +18,9 @@ func main() {
 	if len(query) == 0 {
 		return
 	}
-	err := oreilly.SearchAndSave(query)
-	fmt.Println(err)
-	err = nostarch.Search(query)
+	oreillyErr := oreilly.SearchAndSave(query)
+	fmt.Println(oreillyErr)
+	err := nostarch.Search(query)
 	fmt.Println(err)
 	err = manning.Search(query)
 	fmt.Println(err)

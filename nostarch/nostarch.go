@@ -1,7 +1,9 @@
 package nostarch
 
 import (
-	"fmt"
+	"bookfinder/search"
+	"bookfinder/store"
+	dbutils "bookfinder/utils/db"
 	"net/http"
 	"net/url"
 	"sync"
@@ -21,8 +23,15 @@ func Search(query string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(books)
-	return nil
+	var saveConfig dbutils.Config[bookInfo, store.BookModel]
+	err = dbutils.BulkInsert[bookInfo, store.BookModel]("books", books, saveConfig.Prepare(func(book bookInfo) store.BookModel {
+		return store.BookModel{
+			Title:       book.Title,
+			Description: book.Description,
+			Source:      int(search.NoStarchPress),
+		}
+	}))
+	return err
 }
 
 func searchBooks(query string) ([]bookInfo, error) {
