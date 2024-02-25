@@ -33,6 +33,9 @@ func (Config[T, M]) Prepare(value func(value T) M) setInsertOption[T, M] {
 }
 
 func BulkInsert[T any, M any](tableName string, unsavedRows []T, options ...setInsertOption[T, M]) error {
+	if len(unsavedRows) == 0 {
+		return nil
+	}
 	insertOptions := insertOptions[T, M]{
 		driverName:     "sqlite3",
 		dataSourceName: "db/bookstore.db",

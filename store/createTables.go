@@ -17,7 +17,10 @@ func createTables() {
 	CREATE TABLE IF NOT EXISTS "books" (
 		"title"	TEXT,
 		"description"	TEXT,
+		"year"	TEXT,
 		"isbn"	TEXT,
+		"edition"	INTEGER,
+		"pagesCount"	TEXT,
 		"source"	INTEGER NOT NULL,
 		"id"	INTEGER NOT NULL UNIQUE,
 		PRIMARY KEY("id" AUTOINCREMENT)
